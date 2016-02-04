@@ -43,6 +43,7 @@ var getImage = {
       var g = window.becauseUnitysBadWithJavacript_getImageFromBrowser;
       if (g.busy) {
           // Don't let multiple requests come in
+          return;
       }
       g.busy = true;
 
@@ -56,7 +57,8 @@ var getImage = {
           // Append a form to the page (more self contained than editing the HTML?)
           g.root = window.document.createElement("div");
           g.root.innerHTML = [
-            '<div style="                                               ',
+            '<style>                                                    ',
+            '.getimage {                                                ',
             '    position: absolute;                                    ',
             '    left: 0;                                               ',
             '    top: 0;                                                ',
@@ -78,26 +80,60 @@ var getImage = {
             '    color: white;                                          ',
             '    background-color: rgba(0,0,0,0.8);                     ',
             '    font: sans-serif;                                      ',
-            '    font-size: large;                                      ',
-            '">                                                         ',
+            '    font-size: x-large;                                    ',
+            '}                                                          ',
+            '.getimage a,                                               ',
+            '.getimage label {                                          ',
+            '   font-size: x-large;                                     ',
+            '   background-color: #666;                                 ',
+            '   border-radius: 0.5em;                                   ',
+            '   border: 1px solid black;                                ',
+            '   padding: 0.5em;                                         ',
+            '   margin: 0.25em;                                         ',
+            '   outline: none;                                          ',
+            '   display: inline-block;                                  ',
+            '}                                                          ',
+            '.getimage input {                                          ',
+            '    display: none;                                         ',
+            '}                                                          ',
+            '</style>                                                   ',
+            '<div class="getimage">                                     ',
             '    <div>                                                  ',
-            '      <label for="photo">click to choose an image:</label> ',
-            '      <input id="photo" type="file" accept="image/*"/>     ',
+            '      <label for="photo">click to choose an image</label>  ',
+            '      <input id="photo" type="file" accept="image/*"/><br/>',
+            '      <a>cancel</a>                                        ',
             '    </div>                                                 ',
             '</div>                                                     ',
           ].join('\n');
           var input = g.root.querySelector("input");
           input.addEventListener('change', getPic);
-          //           input.addEventListener('cancel') // TBD
 
+          // prevent clicking in input or label from canceling
+          input.addEventListener('click', preventOtherClicks);
+          var label = g.root.querySelector("label");
+          label.addEventListener('click', preventOtherClicks);
+
+          // clicking cancel or outside cancels
+          var cancel = g.root.querySelector("a");  // there's only one
+          cancel.addEventListener('click', handleCancel);
+          var getImage = g.root.querySelector(".getimage");
+          getImage.addEventListener('click', handleCancel);
+
+          // remember the original style
           g.rootDisplayStyle = g.root.style.display;
+
           window.document.body.appendChild(g.root);
       }
 
       // make it visible
       g.root.style.display = g.rootDisplayStyle;
 
+      function preventOtherClicks(evt) {
+          evt.stopPropagation();
+      }
+
       function getPic(evt) {
+          evt.stopPropagation();
           var fileInput = evt.target.files;
           if (!fileInput || !fileInput.length) {
               return sendError("no image selected");
@@ -108,6 +144,12 @@ var getImage = {
           img.addEventListener('load', handleImageLoad);
           img.addEventListener('error', handleImageError);
           img.src = picURL;
+      }
+
+      function handleCancel(evt) {
+          evt.stopPropagation();
+          evt.preventDefault();
+          sendError("cancelled");
       }
 
       function handleImageError(evt) {
