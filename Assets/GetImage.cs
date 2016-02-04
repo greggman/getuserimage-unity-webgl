@@ -39,9 +39,6 @@ public class GetImage {
         [DllImport("__Internal")]
         private static extern void getImageFromBrowser(string objectName, string callbackFuncName);
 
-        [DllImport("__Internal")]
-        private static extern void useClosure();
-
     #endif
 
     static public void GetImageFromUserAsync(string objectName, string callbackFuncName)
