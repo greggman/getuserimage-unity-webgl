@@ -1,0 +1,26 @@
+<body>
+
+</body>
+<script>
+LibraryManager = {
+  library: {
+  },
+}
+function Pointer_stringify(s) {
+  return s;
+}
+function SendMessage() {
+  console.log("sendMessage");
+  console.log(Array.prototype.join.call(arguments, " "));
+}
+function mergeInto(target, obj) {
+  Object.keys(obj).forEach(function(key) {
+      target[key] = obj[key];
+  });
+}
+</script>
+<script src="Assets/Plugins/WebGL/GetImage.jslib"></script>
+<script>
+LibraryManager.library.getImageFromBrowser("myObject", "myFunc");
+
+</script>
